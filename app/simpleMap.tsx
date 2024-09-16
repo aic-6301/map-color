@@ -21,6 +21,7 @@ const SimpleMap = () => {
     fetch('/japan.json')
       .then(response => response.json())
       .then(data => {
+        setGeoData(data);
         const cityNames = data.features.map((feature: any) => feature.properties.N03_003 || feature.properties.N03_004);
         const uniqueCityNames: string[] = Array.from(new Set(cityNames));
         setCities(uniqueCityNames);
@@ -41,8 +42,15 @@ const SimpleMap = () => {
     const params = new URLSearchParams(window.location.search);
     const key = params.get('key');
     if (key) {
-      // ここでキーを使用してデータを復元する処理を追加できます
-      console.log(`Loading data for key: ${key}`);
+      // ここでキーを使用してデータを復元する処理を追加します
+      const savedData = localStorage.getItem(key);
+      if (savedData) {
+        const { cities, prefectures, cityColors, selectedLayer } = JSON.parse(savedData);
+        setSelectedCities(cities);
+        setSelectedPrefectures(prefectures);
+        setCityColors(cityColors);
+        setSelectedLayer(selectedLayer);
+      }
     }
   }, []);
 
@@ -98,6 +106,13 @@ const SimpleMap = () => {
 
   const generateShareableURL = () => {
     const key = Math.random().toString(36).substring(2, 10); // ランダムなキーを生成
+    const data = {
+      cities: selectedCities,
+      prefectures: selectedPrefectures,
+      cityColors: cityColors,
+      selectedLayer: selectedLayer
+    };
+    localStorage.setItem(key, JSON.stringify(data));
     const url = `${window.location.origin}${window.location.pathname}?key=${key}`;
     navigator.clipboard.writeText(url).then(() => {
       alert('共有URLがクリップボードにコピーされました');
