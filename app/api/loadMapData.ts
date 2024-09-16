@@ -5,10 +5,10 @@ const uri = process.env.MONGODB_URI || '';
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (!client) {
-  client = new MongoClient(uri);
-  clientPromise = client.connect();
-}
+
+client = new MongoClient(uri);
+clientPromise = client.connect();
+
 
 export default async (req: VercelRequest, res: VercelResponse) => {
   const { key } = req.query;
