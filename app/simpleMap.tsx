@@ -129,7 +129,7 @@ const SimpleMap = () => {
         return "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg";
       case 'standard':
       default:
-        return "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png";
+        return "https://cyberjapandata.gsi.go.jp/xyz/blank/{z}/{x}/{y}.png";
     }
   };
 
