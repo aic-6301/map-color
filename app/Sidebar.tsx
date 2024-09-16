@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { FormControl, InputLabel, MenuItem, Select, TextField, List, ListItem, ListItemText, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, ListItemButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -38,26 +38,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [selectedPrefecture, setSelectedPrefecture] = useState<string>('');
   const [localSearchTerm, setLocalSearchTerm] = useState<string>(''); // ローカルな検索用の状態を追加
   const [isCityDialog, setIsCityDialog] = useState<boolean>(true); // 市のダイアログか県のダイアログかを判別する状態
-
-  const sidebarRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = (event: Event) => {
-      event.stopPropagation();
-    };
-
-    const sidebarElement = sidebarRef.current;
-    if (sidebarElement) {
-      sidebarElement.addEventListener('wheel', handleScroll, { passive: false });
-    }
-
-    return () => {
-      if (sidebarElement) {
-        sidebarElement.removeEventListener('wheel', handleScroll);
-      }
-    };
-  }, []);
-
   const colors = [
     { name: '赤', code: '#FF0000' },
     { name: '緑', code: '#00FF00' },
@@ -112,7 +92,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className={`sidebar ${sidebarOpen ? 'open' : ''}`} ref={sidebarRef}>
+    <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
       <h3>市と県の選択</h3>
       <Button variant="contained" color="primary" onClick={() => handleDialogOpen(true)}>
         市を追加
@@ -120,19 +100,19 @@ const Sidebar: React.FC<SidebarProps> = ({
       <Button variant="contained" color="primary" onClick={() => handleDialogOpen(false)}>
         県を追加
       </Button>
-      <FormControl variant="outlined" size="small" fullWidth className="layer-select">
+      <FormControl variant="outlined" size="small" fullWidth className="layer-select" style={{top:'20px'}}>
         <InputLabel>レイヤー</InputLabel>
         <Select
           value={selectedLayer}
           onChange={(e) => onLayerChange(e.target.value)}
           label="レイヤー"
         >
-          <MenuItem value="blank">空白地図</MenuItem>
+          <MenuItem value="standard">標準地図</MenuItem>
           <MenuItem value="pale">淡色地図</MenuItem>
           <MenuItem value="photo">写真</MenuItem>
         </Select>
       </FormControl>
-      <List style={{ marginTop: '16px', maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+      <List style={{ marginTop: '16px' }}>
         {selectedCities.map((city, index) => (
           <ListItem key={`${city}-${index}`}>
             <ListItemText primary={city} />
@@ -192,19 +172,22 @@ const Sidebar: React.FC<SidebarProps> = ({
             onChange={handleLocalSearchChange}
             fullWidth
             margin="normal"
+            autoComplete="off" // 履歴を無効化
           />
           <List>
-            {(isCityDialog ? cities : prefectures)
-              .filter(name => name.includes(localSearchTerm))
-              .map((name, index) => (
-                <ListItemButton
-                  key={index}
-                  onClick={() => isCityDialog ? setSelectedCity(name) : setSelectedPrefecture(name)}
-                  selected={isCityDialog ? selectedCity === name : selectedPrefecture === name}
-                >
-                  <ListItemText primary={name} />
-                </ListItemButton>
-              ))}
+            {(isCityDialog ? cities : prefectures).filter(name => name.toLowerCase().includes(localSearchTerm.toLowerCase())).map((name, index) => (
+              <ListItemButton
+                key={`${name}-${index}`}
+                onClick={() => isCityDialog ? setSelectedCity(name) : setSelectedPrefecture(name)}
+                selected={isCityDialog ? selectedCity === name : selectedPrefecture === name} // 選択された市または県をハイライト
+                sx={{
+                  userSelect: 'none', // 文字選択を無効化
+                  backgroundColor: (isCityDialog ? selectedCity === name : selectedPrefecture === name) ? 'rgba(0, 0, 0, 0.08)' : 'transparent' // 選択時に灰色っぽくハイライト
+                }}
+              >
+                <ListItemText primary={name} />
+              </ListItemButton>
+            ))}
           </List>
         </DialogContent>
         <DialogActions>

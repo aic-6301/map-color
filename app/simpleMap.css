@@ -14,20 +14,21 @@ body {
 }
 
 .sidebar {
-  width: 400px;
+  width: 350px;
   background: #f0f0f0;
   padding: 10px;
   height: 100vh;
-  overflow-y: auto; /* オーバーフロー時にスクロールバーを表示 */
+  overflow-y: auto;
   position: fixed;
   top: 0;
-  left: -420px; /* 初期状態は非表示 */
+  left: -370px; /* 初期状態は非表示 */
   transition: left 0.3s ease;
   z-index: 1000; /* ボタンよりも下に表示 */
 }
 
 .sidebar.open {
   left: 0; /* 表示状態 */
+  transition: left 0.3s ease;
 }
 
 .sidebar h3 {
@@ -43,26 +44,24 @@ body {
   margin: 5px 0;
 }
 
-.sidebar .layer-select {
-  margin-top: 16px; /* ボタンのすぐ下に配置 */
+.sidebar label {
+  color: black;
 }
 
-/* マップコンテナのスタイルを設定 */
-.map-container {
-  flex: 1;
-  background-color: #ffffff;
-  transition: margin-left 0.3s ease; /* マップの移動をスムーズに */
+.sidebar input[type="text"] {
+  width: 100%;
+  margin-bottom: 10px;
 }
 
-.map-container.shifted {
-  margin-left: 400px; /* サイドバーが開いたときにマップを移動 */
-}
-
-/* 開閉ボタンのスタイルを設定 */
 .toggle-button {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1001;
+  bottom: 20px; /* 画面の下部に配置 */
+  left: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1001; /* サイドバーよりも上に表示 */
   transition: left 0.3s ease;
 }
