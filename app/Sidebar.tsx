@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FormControl, InputLabel, MenuItem, Select, TextField, List, ListItem, ListItemText, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, ListItemButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -48,8 +48,31 @@ const Sidebar: React.FC<SidebarProps> = ({
     { name: '茶色', code: '#A52A2A' },
     { name: 'オリーブ', code: '#808000' },
     { name: 'ティール', code: '#008080' },
-    { name: '紫', code: '#800080' }
+    { name: '紫', code: '#800080' },
+    { name: '黒', code: '#000000' },
+    { name: '灰色', code: '#808080' },
+    { name: '銀色', code: '#C0C0C0' },
+    { name: '白', code: '#FFFFFF' },
   ];
+
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = (event: Event) => {
+      event.stopPropagation();
+    };
+
+    const sidebarElement = sidebarRef.current;
+    if (sidebarElement) {
+      sidebarElement.addEventListener('wheel', handleScroll, { passive: false });
+    }
+
+    return () => {
+      if (sidebarElement) {
+        sidebarElement.removeEventListener('wheel', handleScroll);
+      }
+    };
+  }, []);
 
   const handleDialogOpen = (isCity: boolean) => {
     setIsCityDialog(isCity);
@@ -92,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+    <div className={`sidebar ${sidebarOpen ? 'open' : ''}`} ref={sidebarRef}>
       <h3>市と県の選択</h3>
       <Button variant="contained" color="primary" onClick={() => handleDialogOpen(true)}>
         市を追加
