@@ -81,7 +81,7 @@ const SimpleMap = () => {
   };
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', margin: '0 auto', backgroundColor: '#ffffff' }}>
       <Button
         variant="contained"
         color="primary"
@@ -91,7 +91,13 @@ const SimpleMap = () => {
       >
         {sidebarOpen ? '←' : '→'}
       </Button>
-      <MapContainer center={new LatLng(34.99096863821259, 137.00793794535102)} zoom={10} style={{ flex: 1 }}>
+      <MapContainer
+        center={new LatLng(34.99096863821259, 137.00793794535102)}
+        maxZoom={13}
+        zoom={10}
+        minZoom={6}  // 最小ズームレベルを設定
+        style={{ flex: 1, backgroundColor: '#ffffff' }}
+      >
         <TileLayer
           attribution='© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
           url="https://cyberjapandata.gsi.go.jp/xyz/blank/{z}/{x}/{y}.png"
