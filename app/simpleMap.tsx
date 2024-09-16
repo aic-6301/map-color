@@ -19,16 +19,10 @@ const SimpleMap = () => {
 
   useEffect(() => {
     fetch('/japan.json')
-      .then(response => {
-        console.log('Response:', response); // デバッグ用ログ
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
-        console.log('GeoJSON data:', data); // デバッグ用ログ
-        setGeoData(data);
         const cityNames = data.features.map((feature: any) => feature.properties.N03_003 || feature.properties.N03_004);
-        const uniqueCityNames: string[] = Array.from(new Set(cityNames)); // 型を明示的に指定
-        console.log('Unique city names:', uniqueCityNames); // デバッグ用ログ
+        const uniqueCityNames: string[] = Array.from(new Set(cityNames));
         setCities(uniqueCityNames);
       })
       .catch(error => console.error('Error fetching the GeoJSON data:', error));
@@ -37,8 +31,7 @@ const SimpleMap = () => {
       .then(response => response.json())
       .then(data => {
         const prefectureNames = data.features.map((prefecture: any) => prefecture.properties.N03_001);
-        const uniquePrefectureNames: string[] = Array.from(new Set(prefectureNames)); // 型を明示的に指定
-        console.log('Unique prefecture names:', uniquePrefectureNames); // デバッグ用ログ
+        const uniquePrefectureNames: string[] = Array.from(new Set(prefectureNames));
         setPrefectures(uniquePrefectureNames);
       })
       .catch(error => console.error('Error fetching the prefectures data:', error));
@@ -46,15 +39,11 @@ const SimpleMap = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const cities = (params.get('cities') ?? '').split(',');
-    const prefectures = (params.get('prefectures') ?? '').split(',');
-    const cityColors = JSON.parse(params.get('cityColors') ?? '{}');
-    const selectedLayer = params.get('selectedLayer') ?? 'standard';
-
-    setSelectedCities(cities);
-    setSelectedPrefectures(prefectures);
-    setCityColors(cityColors);
-    setSelectedLayer(selectedLayer);
+    const key = params.get('key');
+    if (key) {
+      // ここでキーを使用してデータを復元する処理を追加できます
+      console.log(`Loading data for key: ${key}`);
+    }
   }, []);
 
   const geoJSONStyle = (feature: any) => {
@@ -105,6 +94,14 @@ const SimpleMap = () => {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  const generateShareableURL = () => {
+    const key = Math.random().toString(36).substring(2, 10); // ランダムなキーを生成
+    const url = `${window.location.origin}${window.location.pathname}?key=${key}`;
+    navigator.clipboard.writeText(url).then(() => {
+      alert('共有URLがクリップボードにコピーされました');
+    });
   };
 
   const MapWithSidebar = () => {
@@ -167,6 +164,19 @@ const SimpleMap = () => {
         style={{ position: 'fixed', bottom: '20px', left: '20px', zIndex: 1001 }}
       >
         {sidebarOpen ? '←' : '→'}
+      </Button>
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={generateShareableURL}
+        style={{ 
+          position: 'fixed', 
+          bottom: '20px', 
+          right: '20px', 
+          zIndex: 1001 
+        }}
+      >
+        共有
       </Button>
       <MapContainer
         center={new LatLng(34.99096863821259, 137.00793794535102)}
