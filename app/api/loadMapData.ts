@@ -2,12 +2,10 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI || '';
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
 
 
-client = new MongoClient(uri);
-clientPromise = client.connect();
+const client = new MongoClient(uri);
+const clientPromise = client.connect();
 
 
 export default async (req: VercelRequest, res: VercelResponse) => {
