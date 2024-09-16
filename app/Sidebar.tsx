@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState } from 'react';
 import { Checkbox, FormControl, InputLabel, MenuItem, Select, TextField, List, ListItem, ListItemText, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, ListItemButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -139,4 +138,3 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
-/* eslint-enable */
