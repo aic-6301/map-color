@@ -1,0 +1,65 @@
+.leaflet-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* 通常カーソル */
+.leaflet-grab {
+  cursor: auto;
+}
+
+/* 既存のスタイルに追加 */
+body {
+  color: black;
+}
+
+.sidebar {
+  width: 350px;
+  background: #f0f0f0;
+  padding: 10px;
+  height: 100vh;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: -350px; /* 初期状態は非表示 */
+  transition: left 0.3s ease;
+  z-index: 1000; /* ボタンよりも下に表示 */
+}
+
+.sidebar.open {
+  left: 0; /* 表示状態 */
+}
+
+.sidebar h3 {
+  color: black;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 5px 0;
+}
+
+.sidebar label {
+  color: black;
+}
+
+.sidebar input[type="text"] {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.toggle-button {
+  position: fixed;
+  bottom: 20px; /* 画面の下部に配置 */
+  left: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1001; /* サイドバーよりも上に表示 */
+}
