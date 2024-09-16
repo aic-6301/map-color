@@ -100,6 +100,18 @@ const Sidebar: React.FC<SidebarProps> = ({
       <Button variant="contained" color="primary" onClick={() => handleDialogOpen(false)}>
         県を追加
       </Button>
+      <FormControl variant="outlined" size="small" fullWidth className="layer-select" style={{top:'15px'}}>
+        <InputLabel>レイヤー</InputLabel>
+        <Select
+          value={selectedLayer}
+          onChange={(e) => onLayerChange(e.target.value)}
+          label="レイヤー"
+        >
+          <MenuItem value="standard">標準地図</MenuItem>
+          <MenuItem value="pale">淡色地図</MenuItem>
+          <MenuItem value="photo">写真</MenuItem>
+        </Select>
+      </FormControl>
       <List style={{ marginTop: '16px' }}>
         {selectedCities.map((city, index) => (
           <ListItem key={`${city}-${index}`}>
@@ -150,18 +162,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           </ListItem>
         ))}
       </List>
-      <FormControl variant="outlined" size="small" fullWidth className="layer-select">
-        <InputLabel>レイヤー</InputLabel>
-        <Select
-          value={selectedLayer}
-          onChange={(e) => onLayerChange(e.target.value)}
-          label="レイヤー"
-        >
-          <MenuItem value="standard">標準地図</MenuItem>
-          <MenuItem value="pale">淡色地図</MenuItem>
-          <MenuItem value="photo">写真</MenuItem>
-        </Select>
-      </FormControl>
       <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>{isCityDialog ? '市を選択' : '県を選択'}</DialogTitle>
         <DialogContent>
