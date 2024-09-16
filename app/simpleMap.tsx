@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LatLng } from 'leaflet';
+import { LatLng, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import './simpleMap.css';
@@ -80,6 +80,12 @@ const SimpleMap = () => {
     );
   };
 
+  // 移動範囲の境界を設定
+  const bounds = new LatLngBounds(
+    new LatLng(10.0, 100.0), // 南西の座標
+    new LatLng(50.0, 170.0)  // 北東の座標
+  );
+
   return (
     <div style={{ display: 'flex', margin: '0 auto', backgroundColor: '#ffffff' }}>
       <Button
@@ -96,6 +102,7 @@ const SimpleMap = () => {
         maxZoom={13}
         zoom={10}
         minZoom={6}  // 最小ズームレベルを設定
+        maxBounds={bounds}  // 移動範囲の境界を設定
         style={{ flex: 1, backgroundColor: '#ffffff' }}
       >
         <TileLayer
