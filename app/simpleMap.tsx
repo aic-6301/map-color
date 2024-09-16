@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react';
-import { LatLng, LatLngBounds } from 'leaflet';
+import { LatLng, LatLngBounds, Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, useMapEvents, Marker as LeafletMarker, Popup } from 'react-leaflet';
 import './simpleMap.css';
 import Sidebar from './Sidebar';
 import { Button } from '@mui/material';
+
+// Leafletのデフォルトアイコンを設定
+const defaultIcon = new Icon({
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  shadowSize: [41, 41],
+});
 
 const SimpleMap = () => {
   const [geoData, setGeoData] = useState<any>(null);
@@ -15,7 +25,9 @@ const SimpleMap = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [cityColors, setCityColors] = useState<{ [key: string]: string }>({});
-  const [selectedLayer, setSelectedLayer] = useState<string>('standard');
+  const [selectedLayer, setSelectedLayer] = useState<string>('blank');
+  const [markers, setMarkers] = useState<LatLng[]>([]);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/japan.json')
@@ -95,7 +107,14 @@ const SimpleMap = () => {
   };
 
   const MapWithSidebar = () => {
-    const map = useMap();
+    useMapEvents({
+      click(e) {
+        if (!isDeleting) {
+          setMarkers((prevMarkers) => [...prevMarkers, e.latlng]);
+        }
+        setIsDeleting(false); // リセット
+      }
+    });
     return (
       <Sidebar
         cities={cities}
@@ -115,6 +134,11 @@ const SimpleMap = () => {
     );
   };
 
+  const handleMarkerRemove = (index: number) => {
+    setIsDeleting(true);
+    setMarkers(markers.filter((_, i) => i !== index));
+  };
+
   // 移動範囲の境界を設定
   const bounds = new LatLngBounds(
     new LatLng(10.0, 100.0), // 南西の座標
@@ -127,7 +151,7 @@ const SimpleMap = () => {
         return "https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png";
       case 'photo':
         return "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg";
-      case 'standard':
+      case 'blank':
       default:
         return "https://cyberjapandata.gsi.go.jp/xyz/blank/{z}/{x}/{y}.png";
     }
@@ -138,7 +162,7 @@ const SimpleMap = () => {
       case 'pale':
       case 'photo':
         return 18;
-      case 'standard':
+      case 'blank':
       default:
         return 13;
     }
@@ -151,25 +175,36 @@ const SimpleMap = () => {
         color="primary"
         className="toggle-button"
         onClick={toggleSidebar}
-        style={{ position: 'fixed', bottom: '20px', left: '20px', zIndex: 1001 }}
+        style={{ left: sidebarOpen ? '420px' : '20px' }}
       >
         {sidebarOpen ? '←' : '→'}
       </Button>
-      <MapContainer
-        center={new LatLng(34.99096863821259, 137.00793794535102)}
-        maxZoom={getMaxZoom()}
-        zoom={10}
-        minZoom={6}  // 最小ズームレベルを設定
-        maxBounds={bounds}  // 移動範囲の境界を設定
-        style={{ flex: 1, backgroundColor: '#ffffff' }}
-      >
-        <TileLayer
-          attribution='© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
-          url={getTileLayerUrl()}
-        />
-        {geoData && <GeoJSON data={geoData} style={geoJSONStyle} />}
-        <MapWithSidebar />
-      </MapContainer>
+      <div className={`map-container ${sidebarOpen ? 'shifted' : ''}`}>
+        <MapContainer
+          center={new LatLng(34.99096863821259, 137.00793794535102)}
+          maxZoom={getMaxZoom()}
+          zoom={10}
+          minZoom={6}  // 最小ズームレベルを設定
+          maxBounds={bounds}  // 移動範囲の境界を設定
+          style={{ height: '100vh', width: '100%' }}
+        >
+          <TileLayer
+            attribution='© <a href="https://maps.gsi.go.jp/development/ichiran.html">国土地理院</a>'
+            url={getTileLayerUrl()}
+          />
+          {geoData && <GeoJSON data={geoData} style={geoJSONStyle} />}
+          {markers.map((position, index) => (
+            <LeafletMarker key={index} position={position} icon={defaultIcon}>
+              <Popup>
+                <Button variant="contained" color="secondary" onClick={() => handleMarkerRemove(index)}>
+                  削除
+                </Button>
+              </Popup>
+            </LeafletMarker>
+          ))}
+          <MapWithSidebar />
+        </MapContainer>
+      </div>
     </div>
   );
 };
