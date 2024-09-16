@@ -21,7 +21,7 @@ body {
   overflow-y: auto;
   position: fixed;
   top: 0;
-  left: -350px; /* 初期状態は非表示 */
+  left: -370px; /* 初期状態は非表示 */
   transition: left 0.3s ease;
   z-index: 1000; /* ボタンよりも下に表示 */
 }

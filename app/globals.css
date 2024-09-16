@@ -1,4 +1,3 @@
-@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -26,4 +25,12 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* ボタンの位置を調整 */
+.toggle-button {
+  position: fixed;
+  bottom: 20px;
+  left: 20px; /* 左からの距離を調整 */
+  z-index: 1001;
 }
