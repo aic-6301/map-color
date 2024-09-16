@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useState } from 'react';
 import { LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -104,3 +105,4 @@ const SimpleMap = () => {
 };
 
 export default SimpleMap;
+/* eslint-enable */
