@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useEffect, useState } from 'react';
 import { LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -25,7 +24,7 @@ const SimpleMap = () => {
         console.log('GeoJSON data:', data); // デバッグ用ログ
         setGeoData(data);
         const cityNames = data.features.map((feature: any) => feature.properties.N03_003 || feature.properties.N03_004);
-        const uniqueCityNames = Array.from(new Set(cityNames)); // 重複を排除
+        const uniqueCityNames: string[] = Array.from(new Set(cityNames)); // 型を明示的に指定
         console.log('Unique city names:', uniqueCityNames); // デバッグ用ログ
         setCities(uniqueCityNames);
       })
@@ -105,4 +104,3 @@ const SimpleMap = () => {
 };
 
 export default SimpleMap;
-/* eslint-enable */
