@@ -63,5 +63,4 @@ body {
   padding: 10px;
   cursor: pointer;
   z-index: 1001; /* サイドバーよりも上に表示 */
-  transition: left 0.3s ease;
 }

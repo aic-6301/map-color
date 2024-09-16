@@ -107,19 +107,6 @@ const SimpleMap = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const generateShareableURL = () => {
-    const params = new URLSearchParams();
-    params.set('cities', selectedCities.join(','));
-    params.set('prefectures', selectedPrefectures.join(','));
-    params.set('cityColors', JSON.stringify(cityColors));
-    params.set('selectedLayer', selectedLayer);
-
-    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-    navigator.clipboard.writeText(url).then(() => {
-      alert('共有URLがクリップボードにコピーされました');
-    });
-  };
-
   const MapWithSidebar = () => {
     const map = useMap();
     return (
@@ -177,22 +164,9 @@ const SimpleMap = () => {
         color="primary"
         className="toggle-button"
         onClick={toggleSidebar}
-        style={{ position: 'fixed', bottom: '20px', left: sidebarOpen ? '390px' : '20px', zIndex: 1001 }}
+        style={{ position: 'fixed', bottom: '20px', left: '20px', zIndex: 1001 }}
       >
         {sidebarOpen ? '←' : '→'}
-      </Button>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={generateShareableURL}
-        style={{ 
-          position: 'fixed', 
-          bottom: '20px', 
-          right: '20px', 
-          zIndex: 1001 
-        }}
-      >
-        共有
       </Button>
       <MapContainer
         center={new LatLng(34.99096863821259, 137.00793794535102)}
