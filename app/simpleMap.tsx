@@ -21,13 +21,16 @@ const SimpleMap = () => {
     fetch('/japan.json')
       .then(response => response.json())
       .then(data => {
-        setGeoData(data);
-        const cityNames = data.features.map((feature: any) => feature.properties.N03_003 || feature.properties.N03_004);
+        const cityNames = data.features.map((feature: any) => {
+          const cityName = feature.properties.N03_003;
+          const wardName = feature.properties.N03_004;
+          return cityName ? (wardName ? `${cityName}${wardName}` : cityName) : wardName;
+        });
         const uniqueCityNames: string[] = Array.from(new Set(cityNames));
         setCities(uniqueCityNames);
       })
       .catch(error => console.error('Error fetching the GeoJSON data:', error));
-
+  
     fetch('/prefectures.json')
       .then(response => response.json())
       .then(data => {
@@ -37,30 +40,32 @@ const SimpleMap = () => {
       })
       .catch(error => console.error('Error fetching the prefectures data:', error));
   }, []);
-
+  
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const key = params.get('key');
     if (key) {
-      // ここでキーを使用してデータを復元する処理を追加します
       const savedData = localStorage.getItem(key);
       if (savedData) {
-        const { cities, prefectures, cityColors, selectedLayer } = JSON.parse(savedData);
+        const { cities, prefectures, cityColors, selectedLayer, markers } = JSON.parse(savedData);
         setSelectedCities(cities);
         setSelectedPrefectures(prefectures);
         setCityColors(cityColors);
         setSelectedLayer(selectedLayer);
+        setMarkers(markers.map((marker: any) => new LatLng(marker.lat, marker.lng)));
       }
     }
   }, []);
-
+  
   const geoJSONStyle = (feature: any) => {
-    const cityName = feature.properties.N03_003 || feature.properties.N03_004;
+    const cityName = feature.properties.N03_003;
+    const wardName = feature.properties.N03_004;
+    const fullName = cityName ? (wardName ? `${cityName}${wardName}` : cityName) : wardName;
     const prefectureName = feature.properties.N03_001;
-    const isSelectedCity = selectedCities.includes(cityName);
+    const isSelectedCity = selectedCities.includes(fullName);
     const isSelectedPrefecture = selectedPrefectures.includes(prefectureName);
-    const color = cityColors[cityName] || cityColors[prefectureName] || 'blue';
-
+    const color = cityColors[fullName] || cityColors[prefectureName] || 'blue';
+  
     return {
       color: isSelectedCity || isSelectedPrefecture ? color : 'transparent',
       weight: isSelectedCity || isSelectedPrefecture ? 2 : 0,
@@ -68,7 +73,7 @@ const SimpleMap = () => {
       fillOpacity: isSelectedCity || isSelectedPrefecture ? 0.5 : 0,
     };
   };
-
+  
   const handleCitySelect = (cityName: string) => {
     setSelectedCities(prevSelectedCities =>
       prevSelectedCities.includes(cityName)
