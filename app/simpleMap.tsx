@@ -144,7 +144,6 @@ const SimpleMap = () => {
 
     return (
       <Sidebar
-        ref={sidebarRef}
         cities={cities}
         prefectures={prefectures}
         selectedCities={selectedCities}
