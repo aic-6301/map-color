@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { LatLng, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
@@ -16,11 +16,13 @@ const SimpleMap = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [cityColors, setCityColors] = useState<{ [key: string]: string }>({});
   const [selectedLayer, setSelectedLayer] = useState<string>('standard');
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch('/japan.json')
       .then(response => response.json())
       .then(data => {
+        setGeoData(data);
         const cityNames = data.features.map((feature: any) => {
           const cityName = feature.properties.N03_003;
           const wardName = feature.properties.N03_004;
@@ -30,7 +32,7 @@ const SimpleMap = () => {
         setCities(uniqueCityNames);
       })
       .catch(error => console.error('Error fetching the GeoJSON data:', error));
-  
+
     fetch('/prefectures.json')
       .then(response => response.json())
       .then(data => {
@@ -40,7 +42,7 @@ const SimpleMap = () => {
       })
       .catch(error => console.error('Error fetching the prefectures data:', error));
   }, []);
-  
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const key = params.get('key');
@@ -55,7 +57,7 @@ const SimpleMap = () => {
       }
     }
   }, []);
-  
+
   const geoJSONStyle = (feature: any) => {
     const cityName = feature.properties.N03_003;
     const wardName = feature.properties.N03_004;
@@ -64,7 +66,7 @@ const SimpleMap = () => {
     const isSelectedCity = selectedCities.includes(fullName);
     const isSelectedPrefecture = selectedPrefectures.includes(prefectureName);
     const color = cityColors[fullName] || cityColors[prefectureName] || 'blue';
-  
+
     return {
       color: isSelectedCity || isSelectedPrefecture ? color : 'transparent',
       weight: isSelectedCity || isSelectedPrefecture ? 2 : 0,
@@ -72,7 +74,7 @@ const SimpleMap = () => {
       fillOpacity: isSelectedCity || isSelectedPrefecture ? 0.5 : 0,
     };
   };
-  
+
   const handleCitySelect = (cityName: string) => {
     setSelectedCities(prevSelectedCities =>
       prevSelectedCities.includes(cityName)
@@ -125,8 +127,24 @@ const SimpleMap = () => {
 
   const MapWithSidebar = () => {
     const map = useMap();
+    useEffect(() => {
+      const handleScroll = (e: Event) => {
+        e.stopPropagation();
+      };
+      const sidebarElement = sidebarRef.current;
+      if (sidebarElement) {
+        sidebarElement.addEventListener('wheel', handleScroll);
+      }
+      return () => {
+        if (sidebarElement) {
+          sidebarElement.removeEventListener('wheel', handleScroll);
+        }
+      };
+    }, []);
+
     return (
       <Sidebar
+        ref={sidebarRef}
         cities={cities}
         prefectures={prefectures}
         selectedCities={selectedCities}
@@ -174,13 +192,15 @@ const SimpleMap = () => {
   };
 
   return (
-    <div style={{ display: 'flex', margin: '0 auto', backgroundColor: '#ffffff' }}>
+    <div
+      style={{ display: 'flex', margin: '0 auto', backgroundColor: '#ffffff' }}
+    >
       <Button
         variant="contained"
         color="primary"
         className="toggle-button"
         onClick={toggleSidebar}
-        style={{ position: 'fixed', bottom: '20px', left: sidebarOpen ? '390px' : '20px', zIndex: 1001 }}
+        style={{ position: 'fixed', bottom: '20px', left: '20px', zIndex: 1001 }}
       >
         {sidebarOpen ? '←' : '→'}
       </Button>
