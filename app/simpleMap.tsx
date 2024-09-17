@@ -199,7 +199,12 @@ const SimpleMap = () => {
         color="primary"
         className="toggle-button"
         onClick={toggleSidebar}
-        style={{ position: 'fixed', bottom: '20px', left: '20px', zIndex: 1001 }}
+        style={{ 
+          position: 'fixed', 
+          bottom: '20px', 
+          left: sidebarOpen ? '390px' : '20px', 
+          zIndex: 1001 
+        }}
       >
         {sidebarOpen ? '←' : '→'}
       </Button>
