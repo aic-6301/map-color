@@ -34,10 +34,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   onLayerChange
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedCity, setSelectedCity] = useState<string>('');
-  const [selectedPrefecture, setSelectedPrefecture] = useState<string>('');
-  const [localSearchTerm, setLocalSearchTerm] = useState<string>(''); // ローカルな検索用の状態を追加
-  const [isCityDialog, setIsCityDialog] = useState<boolean>(true); // 市のダイアログか県のダイアログかを判別する状態
+  const [selectedCitiesInDialog, setSelectedCitiesInDialog] = useState<string[]>([]);
+  const [selectedPrefecturesInDialog, setSelectedPrefecturesInDialog] = useState<string[]>([]);
+  const [localSearchTerm, setLocalSearchTerm] = useState<string>('');
+  const [isCityDialog, setIsCityDialog] = useState<boolean>(true);
   const colors = [
     { name: '赤', code: '#FF0000' },
     { name: '緑', code: '#00FF00' },
@@ -77,29 +77,27 @@ const Sidebar: React.FC<SidebarProps> = ({
   const handleDialogOpen = (isCity: boolean) => {
     setIsCityDialog(isCity);
     setDialogOpen(true);
-    setLocalSearchTerm(''); // ダイアログを開くときにローカルな検索用の状態をクリア
+    setLocalSearchTerm('');
+    setSelectedCitiesInDialog([]);
+    setSelectedPrefecturesInDialog([]);
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-    setSelectedCity(''); // ダイアログを閉じる際に選択された市をクリア
-    setSelectedPrefecture(''); // ダイアログを閉じる際に選択された県をクリア
+    setSelectedCitiesInDialog([]);
+    setSelectedPrefecturesInDialog([]);
   };
 
   const handleCityAdd = () => {
-    if (selectedCity) {
-      onCitySelect(selectedCity);
-      setDialogOpen(false);
-      setSelectedCity(''); // 市を追加した後に選択された市をクリア
-    }
+    selectedCitiesInDialog.forEach(city => onCitySelect(city));
+    setDialogOpen(false);
+    setSelectedCitiesInDialog([]);
   };
 
   const handlePrefectureAdd = () => {
-    if (selectedPrefecture) {
-      onPrefectureSelect(selectedPrefecture);
-      setDialogOpen(false);
-      setSelectedPrefecture(''); // 県を追加した後に選択された県をクリア
-    }
+    selectedPrefecturesInDialog.forEach(prefecture => onPrefectureSelect(prefecture));
+    setDialogOpen(false);
+    setSelectedPrefecturesInDialog([]);
   };
 
   const handleLocalSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,11 +105,23 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleCityRemove = (city: string) => {
-    onCitySelect(city); // 選択を解除することで削除
+    onCitySelect(city);
   };
 
   const handlePrefectureRemove = (prefecture: string) => {
-    onPrefectureSelect(prefecture); // 選択を解除することで削除
+    onPrefectureSelect(prefecture);
+  };
+
+  const handleItemClick = (name: string) => {
+    if (isCityDialog) {
+      setSelectedCitiesInDialog(prev => 
+        prev.includes(name) ? prev.filter(city => city !== name) : [...prev, name]
+      );
+    } else {
+      setSelectedPrefecturesInDialog(prev => 
+        prev.includes(name) ? prev.filter(prefecture => prefecture !== name) : [...prev, name]
+      );
+    }
   };
 
   return (
@@ -195,17 +205,17 @@ const Sidebar: React.FC<SidebarProps> = ({
             onChange={handleLocalSearchChange}
             fullWidth
             margin="normal"
-            autoComplete="off" // 履歴を無効化
+            autoComplete="off"
           />
           <List>
             {(isCityDialog ? cities : prefectures).filter(name => name.toLowerCase().includes(localSearchTerm.toLowerCase())).map((name, index) => (
               <ListItemButton
                 key={`${name}-${index}`}
-                onClick={() => isCityDialog ? setSelectedCity(name) : setSelectedPrefecture(name)}
-                selected={isCityDialog ? selectedCity === name : selectedPrefecture === name} // 選択された市または県をハイライト
+                onClick={() => handleItemClick(name)}
+                selected={isCityDialog ? selectedCitiesInDialog.includes(name) : selectedPrefecturesInDialog.includes(name)}
                 sx={{
-                  userSelect: 'none', // 文字選択を無効化
-                  backgroundColor: (isCityDialog ? selectedCity === name : selectedPrefecture === name) ? 'rgba(0, 0, 0, 0.08)' : 'transparent' // 選択時に灰色っぽくハイライト
+                  userSelect: 'none',
+                  backgroundColor: (isCityDialog ? selectedCitiesInDialog.includes(name) : selectedPrefecturesInDialog.includes(name)) ? 'rgba(0, 0, 0, 0.08)' : 'transparent'
                 }}
               >
                 <ListItemText primary={name} />
