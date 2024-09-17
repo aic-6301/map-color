@@ -47,12 +47,11 @@ const SimpleMap = () => {
     if (key) {
       const savedData = localStorage.getItem(key);
       if (savedData) {
-        const { cities, prefectures, cityColors, selectedLayer, markers } = JSON.parse(savedData);
+        const { cities, prefectures, cityColors, selectedLayer } = JSON.parse(savedData);
         setSelectedCities(cities);
         setSelectedPrefectures(prefectures);
         setCityColors(cityColors);
         setSelectedLayer(selectedLayer);
-        setMarkers(markers.map((marker: any) => new LatLng(marker.lat, marker.lng)));
       }
     }
   }, []);
