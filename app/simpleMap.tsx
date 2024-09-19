@@ -239,8 +239,8 @@ const SimpleMap = () => {
         style={{ 
           position: 'fixed', 
           bottom: '20px', 
-          left: sidebarOpen ? '390px' : '20px', 
-          zIndex: 1001 
+          left: sidebarOpen ? '340px' : '20px', 
+          zIndex: 1002 
         }}
       >
         {sidebarOpen ? '←' : '→'}
