@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { LatLng, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, useMap, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
 import './simpleMap.css';
 import Sidebar from './Sidebar';
 import { Button } from '@mui/material';
@@ -142,6 +143,10 @@ const SimpleMap = () => {
       };
     }, []);
 
+    useMapEvents({
+      click: handleMapClick,
+    });
+
     return (
       <Sidebar
         cities={cities}
@@ -187,6 +192,38 @@ const SimpleMap = () => {
       case 'standard':
       default:
         return 13;
+    }
+  };
+
+  const handleMapClick = (event: any) => {
+    const { latlng } = event;
+    const buffer = 0.001; // バッファのサイズを調整
+    const bufferedBounds = L.latLngBounds(
+      [latlng.lat - buffer, latlng.lng - buffer],
+      [latlng.lat + buffer, latlng.lng + buffer]
+    );
+  
+    let closestCity = null;
+    let minDistance = Infinity;
+  
+    geoData.features.forEach((feature: any) => {
+      const layer = L.geoJSON(feature);
+      if (layer.getBounds().intersects(bufferedBounds)) {
+        const cityName = feature.properties.N03_003;
+        const wardName = feature.properties.N03_004;
+        const fullName = cityName ? (wardName ? `${cityName}${wardName}` : cityName) : wardName;
+        const center = layer.getBounds().getCenter();
+        const distance = latlng.distanceTo(center);
+  
+        if (distance < minDistance) {
+          closestCity = fullName;
+          minDistance = distance;
+        }
+      }
+    });
+  
+    if (closestCity && !selectedCities.includes(closestCity)) {
+      handleCitySelect(closestCity);
     }
   };
 

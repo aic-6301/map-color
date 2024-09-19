@@ -125,7 +125,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className={`sidebar ${sidebarOpen ? 'open' : ''}`} ref={sidebarRef}>
+    <div
+      className={`sidebar ${sidebarOpen ? 'open' : ''}`}
+      ref={sidebarRef}
+      style={{
+        pointerEvents: sidebarOpen ? 'auto' : 'none' // ここでpointer-eventsを設定
+      }}
+    >
       <h3>市と県の選択</h3>
       <Button variant="contained" color="primary" onClick={() => handleDialogOpen(true)}>
         市を追加
