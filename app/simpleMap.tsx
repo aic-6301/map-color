@@ -122,7 +122,7 @@ const SimpleMap = () => {
     localStorage.setItem(key, JSON.stringify(data));
     const url = `${window.location.origin}${window.location.pathname}?key=${key}`;
     navigator.clipboard.writeText(url).then(() => {
-      alert('共有URLがクリップボードにコピーされました');
+      alert('共有URLがクリップボードにコピーされました\n※今のところ、共有URLはこのブラウザでのみ有効です。');
     });
   };
 
