@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { LatLng, LatLngBounds } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, GeoJSON, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, useMap, useMapEvents, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import './simpleMap.css';
 import Sidebar from './Sidebar';
 import { Button } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SimpleMap = () => {
   const [geoData, setGeoData] = useState<any>(null);
@@ -17,6 +19,7 @@ const SimpleMap = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [cityColors, setCityColors] = useState<{ [key: string]: string }>({});
   const [selectedLayer, setSelectedLayer] = useState<string>('standard');
+  const [zoomLevel, setZoomLevel] = useState<number>(10); // ズームレベルの状態を追加
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,6 +50,7 @@ const SimpleMap = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const key = params.get('key');
+    console.log(key);
     if (key) {
       const savedData = localStorage.getItem(key);
       if (savedData) {
@@ -128,6 +132,7 @@ const SimpleMap = () => {
 
   const MapWithSidebar = () => {
     const map = useMap();
+
     useEffect(() => {
       const handleScroll = (e: Event) => {
         e.stopPropagation();
@@ -143,8 +148,22 @@ const SimpleMap = () => {
       };
     }, []);
 
+    useEffect(() => {
+      const onZoomEnd = () => {
+        setZoomLevel(map.getZoom());
+      };
+      map.on('zoomend', onZoomEnd);
+      return () => {
+        map.off('zoomend', onZoomEnd);
+      };
+    }, [map]);
+
     useMapEvents({
-      click: handleMapClick,
+      click: (event) => {
+        if (!sidebarOpen) {
+          handleMapClick(event);
+        }
+      },
     });
 
     return (
@@ -162,6 +181,7 @@ const SimpleMap = () => {
         cityColors={cityColors}
         selectedLayer={selectedLayer}
         onLayerChange={handleLayerChange}
+        setMapClickEnabled={(enabled) => console.log(enabled)} // Add this line
       />
     );
   };
@@ -240,7 +260,7 @@ const SimpleMap = () => {
           position: 'fixed', 
           bottom: '20px', 
           left: sidebarOpen ? '340px' : '20px', 
-          zIndex: 1002 
+          zIndex: 1002
         }}
       >
         {sidebarOpen ? '←' : '→'}
@@ -271,8 +291,53 @@ const SimpleMap = () => {
           url={getTileLayerUrl()}
         />
         {geoData && <GeoJSON data={geoData} style={geoJSONStyle} />}
+        {zoomLevel >= 10 ? (
+          selectedCities.map(cityName => {
+            const cityFeature = geoData.features.find((feature: any) => {
+              const name = feature.properties.N03_003;
+              const ward = feature.properties.N03_004;
+              const fullName = name ? (ward ? `${name}${ward}` : name) : ward;
+              return fullName === cityName;
+            });
+            if (!cityFeature) return null;
+            const center = L.geoJSON(cityFeature).getBounds().getCenter();
+            return (
+              <Marker
+                key={cityName}
+                position={center}
+                icon={L.divIcon({
+                  className: 'city-label',
+                  html: `<div style="background-color: white; padding: 2px 5px; border-radius: 3px; white-space: nowrap; text-align: center; transform: translate(-50%, -50%);">${cityName}</div>`,
+                  iconSize: [100, 40], // アイコンのサイズを指定
+                  iconAnchor: [50, 20], // アイコンのアンカーを中心に設定
+                })}
+              />
+            );
+          })
+        ) : (
+          selectedPrefectures.map(prefectureName => {
+            const prefectureFeature = geoData.features.find((feature: any) => {
+              return feature.properties.N03_001 === prefectureName;
+            });
+            if (!prefectureFeature) return null;
+            const center = L.geoJSON(prefectureFeature).getBounds().getCenter();
+            return (
+              <Marker
+                key={prefectureName}
+                position={center}
+                icon={L.divIcon({
+                  className: 'city-label',
+                  html: `<div style="background-color: white; padding: 2px 5px; border-radius: 3px; white-space: nowrap; text-align: center; transform: translate(-50%, -50%);">${prefectureName}</div>`,
+                  iconSize: [100, 40], // アイコンのサイズを指定
+                  iconAnchor: [50, 20], // アイコンのアンカーを中心に設定
+                })}
+              />
+            );
+          })
+        )}
         <MapWithSidebar />
       </MapContainer>
+      <ToastContainer />
     </div>
   );
 };

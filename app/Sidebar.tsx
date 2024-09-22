@@ -16,6 +16,7 @@ interface SidebarProps {
   cityColors: { [key: string]: string };
   selectedLayer: string;
   onLayerChange: (layer: string) => void;
+  setMapClickEnabled: (enabled: boolean) => void; // 追加
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -31,7 +32,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onColorChange,
   cityColors,
   selectedLayer,
-  onLayerChange
+  onLayerChange,
+  setMapClickEnabled, // 追加
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCitiesInDialog, setSelectedCitiesInDialog] = useState<string[]>([]);
@@ -80,24 +82,28 @@ const Sidebar: React.FC<SidebarProps> = ({
     setLocalSearchTerm('');
     setSelectedCitiesInDialog([]);
     setSelectedPrefecturesInDialog([]);
+    setMapClickEnabled(false); // マップクリックイベントを無効化
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedCitiesInDialog([]);
     setSelectedPrefecturesInDialog([]);
+    setMapClickEnabled(true); // マップクリックイベントを有効化
   };
 
   const handleCityAdd = () => {
     selectedCitiesInDialog.forEach(city => onCitySelect(city));
     setDialogOpen(false);
     setSelectedCitiesInDialog([]);
+    setMapClickEnabled(true); // マップクリックイベントを有効化
   };
 
   const handlePrefectureAdd = () => {
     selectedPrefecturesInDialog.forEach(prefecture => onPrefectureSelect(prefecture));
     setDialogOpen(false);
     setSelectedPrefecturesInDialog([]);
+    setMapClickEnabled(true); // マップクリックイベントを有効化
   };
 
   const handleLocalSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       className={`sidebar ${sidebarOpen ? 'open' : ''}`}
       ref={sidebarRef}
       style={{
-        pointerEvents: sidebarOpen ? 'auto' : 'none' // ここでpointer-eventsを設定
+        pointerEvents: sidebarOpen ? 'auto' : 'none'
       }}
     >
       <h3>市と県の選択</h3>
